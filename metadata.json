@@ -1,0 +1,6 @@
+{
+  "name": "Latihan Penalaran Numerik",
+  "description": "Aplikasi latihan hitung cepat dan penalaran numerik dengan operasi penambahan, pengurangan, perkalian, dan pembagian dari 1 digit hingga 1000.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
