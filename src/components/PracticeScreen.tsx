@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Question, QuizSettings, Operation } from '../types';
 import { sounds } from '../utils/audio';
+import { StreakCelebration } from './StreakCelebration';
 import {
   Flame,
   Clock,
@@ -39,6 +40,7 @@ export default function PracticeScreen({
   const [answeredList, setAnsweredList] = useState<Question[]>([]);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
   const [maxStreak, setMaxStreak] = useState<number>(0);
+  const [streakTriggerKey, setStreakTriggerKey] = useState<number>(0);
 
   // Question timing
   const questionStartTimeRef = useRef<number>(Date.now());
@@ -99,11 +101,25 @@ export default function PracticeScreen({
     setAnsweredList(newAnswered);
 
     if (isCorrect) {
-      if (settings.soundEnabled) sounds.playCorrect();
       const newStreak = currentStreak + 1;
       setCurrentStreak(newStreak);
       if (newStreak > maxStreak) setMaxStreak(newStreak);
       setFeedback('correct');
+      setStreakTriggerKey(Date.now());
+
+      if (settings.soundEnabled) {
+        if (newStreak >= 15 && newStreak % 5 === 0) {
+          sounds.playStreakReward('unstoppable');
+        } else if (newStreak === 10) {
+          sounds.playStreakReward('excellent');
+        } else if (newStreak === 7 || newStreak === 5) {
+          sounds.playStreakReward('great');
+        } else if (newStreak === 3) {
+          sounds.playStreakReward('good');
+        } else {
+          sounds.playCorrect();
+        }
+      }
     } else {
       if (settings.soundEnabled) sounds.playWrong();
       setCurrentStreak(0);
@@ -258,14 +274,28 @@ export default function PracticeScreen({
           <div className="flex items-center gap-3">
             {/* Streak */}
             <div
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
-                currentStreak > 2
-                  ? 'bg-amber-100 text-amber-800 scale-105'
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 ${
+                currentStreak >= 10
+                  ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-900 ring-2 ring-purple-400 scale-110 shadow-xs'
+                  : currentStreak >= 5
+                  ? 'bg-amber-100 text-amber-900 ring-2 ring-amber-400 scale-105 shadow-2xs'
+                  : currentStreak >= 2
+                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
                   : 'bg-slate-100 text-slate-600'
               }`}
             >
-              <Flame className={`w-4 h-4 ${currentStreak > 2 ? 'text-amber-500 fill-amber-500 animate-pulse' : 'text-slate-400'}`} />
-              <span>{currentStreak} Streak</span>
+              <Flame
+                className={`w-4 h-4 ${
+                  currentStreak >= 10
+                    ? 'text-pink-500 fill-pink-500 animate-bounce'
+                    : currentStreak >= 5
+                    ? 'text-amber-500 fill-amber-500 animate-bounce'
+                    : currentStreak >= 2
+                    ? 'text-amber-500 fill-amber-500'
+                    : 'text-slate-400'
+                }`}
+              />
+              <span className="font-mono-numbers">{currentStreak} Streak</span>
             </div>
 
             {/* Accuracy */}
@@ -306,6 +336,9 @@ export default function PracticeScreen({
             : 'border-slate-200'
         }`}
       >
+        {/* Animated Streak Celebration Badge (Good, Great, Excellent, Unstoppable) */}
+        <StreakCelebration streak={currentStreak} triggerKey={streakTriggerKey} />
+
         {/* Math Question Expression */}
         <div className="font-mono-numbers text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight my-4 sm:my-6 select-none flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
           <span className="text-slate-900">{currentQuestion.num1}</span>
@@ -354,7 +387,7 @@ export default function PracticeScreen({
             id="btn-quiz-skip"
             onClick={handleSkip}
             disabled={feedback !== 'none'}
-            className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-150 cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             Lewati
           </button>
@@ -364,7 +397,7 @@ export default function PracticeScreen({
             id="btn-quiz-submit"
             onClick={handleSubmit}
             disabled={feedback !== 'none' || inputValue.trim() === ''}
-            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base rounded-xl shadow-xs active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
+            className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-600 text-white font-bold text-sm sm:text-base rounded-xl shadow-md hover:shadow-purple-500/25 hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
           >
             <span>Kirim</span>
             <CornerDownLeft className="w-4 h-4" />
@@ -381,7 +414,7 @@ export default function PracticeScreen({
               type="button"
               id={`btn-keypad-${num}`}
               onClick={() => handleKeypadPress(num)}
-              className="py-3 sm:py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-mono-numbers text-xl sm:text-2xl font-bold transition-all active:scale-[0.96] shadow-2xs"
+              className="py-3 sm:py-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-900 font-mono-numbers text-xl sm:text-2xl font-bold transition-all duration-150 cursor-pointer hover:scale-110 hover:-translate-y-1 hover:shadow-md hover:bg-indigo-50/80 hover:text-indigo-600 hover:border-indigo-300 active:scale-90 active:bg-indigo-100 shadow-2xs"
             >
               {num}
             </button>
@@ -392,7 +425,7 @@ export default function PracticeScreen({
             type="button"
             id="btn-keypad-clear"
             onClick={() => handleKeypadPress('CLEAR')}
-            className="py-3 sm:py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-rose-600 font-semibold text-sm transition-all active:scale-[0.96]"
+            className="py-3 sm:py-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-rose-600 font-semibold text-sm transition-all duration-150 cursor-pointer hover:scale-105 hover:-translate-y-0.5 hover:shadow-md hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 active:scale-90 active:bg-rose-100"
           >
             Hapus
           </button>
@@ -401,7 +434,7 @@ export default function PracticeScreen({
             type="button"
             id="btn-keypad-0"
             onClick={() => handleKeypadPress('0')}
-            className="py-3 sm:py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-mono-numbers text-xl sm:text-2xl font-bold transition-all active:scale-[0.96] shadow-2xs"
+            className="py-3 sm:py-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-900 font-mono-numbers text-xl sm:text-2xl font-bold transition-all duration-150 cursor-pointer hover:scale-110 hover:-translate-y-1 hover:shadow-md hover:bg-indigo-50/80 hover:text-indigo-600 hover:border-indigo-300 active:scale-90 active:bg-indigo-100 shadow-2xs"
           >
             0
           </button>
@@ -410,7 +443,7 @@ export default function PracticeScreen({
             type="button"
             id="btn-keypad-back"
             onClick={() => handleKeypadPress('BACK')}
-            className="py-3 sm:py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 flex items-center justify-center transition-all active:scale-[0.96]"
+            className="py-3 sm:py-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-700 flex items-center justify-center transition-all duration-150 cursor-pointer hover:scale-105 hover:-translate-y-0.5 hover:shadow-md hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 active:scale-90 active:bg-amber-100"
             aria-label="Backspace"
           >
             <Delete className="w-5 h-5" />
@@ -423,7 +456,7 @@ export default function PracticeScreen({
           id="btn-keypad-enter"
           onClick={() => handleKeypadPress('ENTER')}
           disabled={feedback !== 'none' || inputValue.trim() === ''}
-          className="w-full mt-2.5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-base flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] disabled:opacity-40"
+          className="w-full mt-2.5 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-600 text-white font-bold text-base flex items-center justify-center gap-2 shadow-md hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-95 transition-all duration-150 cursor-pointer disabled:opacity-40"
         >
           <span>Jawab (Enter)</span>
           <CornerDownLeft className="w-4 h-4" />

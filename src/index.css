@@ -13,3 +13,132 @@
   font-family: 'JetBrains Mono', monospace;
   font-feature-settings: 'tnum' on, 'lnum' on;
 }
+
+@keyframes joyful-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
+@keyframes joyful-pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes joyful-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes joyful-pop {
+  0% {
+    transform: scale(0.6) rotate(-8deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-joyful-float {
+  animation: joyful-float 3.5s ease-in-out infinite;
+}
+
+.animate-joyful-pulse-scale {
+  animation: joyful-pulse-scale 1.8s ease-in-out infinite;
+}
+
+.animate-joyful-pop {
+  animation: joyful-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.bg-shimmer-rainbow {
+  background-size: 200% 200%;
+  animation: joyful-shimmer 4s ease infinite;
+}
+
+/* Joyful Interactive Button Classes */
+.btn-joyful {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-joyful:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-joyful:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+@keyframes streak-pop {
+  0% {
+    transform: scale(0.4) translateY(24px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18) translateY(-4px);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.95) translateY(1px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes streak-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), 0 0 30px rgba(236, 72, 153, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), 0 0 50px rgba(236, 72, 153, 0.4);
+  }
+}
+
+.animate-streak-pop {
+  animation: streak-pop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-streak-glow {
+  animation: streak-pulse-glow 1.2s ease-in-out infinite;
+}
+
+@keyframes joyful-fade-scale {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-joyful-fade-scale {
+  animation: joyful-fade-scale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

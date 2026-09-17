@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Question, QuizSettings, Operation } from '../types';
 import { OPERATION_CONFIGS } from '../utils/mathGenerator';
+import { ConfettiEffect, fireGrandCelebration } from './ConfettiEffect';
+import { sounds } from '../utils/audio';
 import {
   Trophy,
   Clock,
@@ -12,6 +14,8 @@ import {
   AlertTriangle,
   ArrowRight,
   TrendingUp,
+  Sparkles,
+  PartyPopper,
 } from 'lucide-react';
 
 interface ResultsScreenProps {
@@ -112,16 +116,51 @@ export default function ResultsScreen({
   }, [filterMode, completedQuestions, wrongQuestions, correctQuestions]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-8 relative">
+      {/* 100% Accuracy Confetti Trigger */}
+      {accuracy === 100 && totalAnswered > 0 && (
+        <ConfettiEffect
+          onFire={() => {
+            if (settings.soundEnabled) sounds.playVictoryFanfare();
+          }}
+        />
+      )}
+
       {/* Top Banner & Assessment */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 mb-4 shadow-2xs">
-          <Trophy className="w-8 h-8" />
+      <div
+        className={`bg-white rounded-3xl p-6 sm:p-8 border shadow-sm text-center relative overflow-hidden transition-all ${
+          accuracy === 100
+            ? 'border-amber-300 ring-4 ring-amber-400/20'
+            : 'border-slate-200'
+        }`}
+      >
+        {accuracy === 100 && (
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-rose-500 to-emerald-400" />
+        )}
+
+        <div className="flex justify-center mb-4">
+          <div
+            className={`inline-flex items-center justify-center w-18 h-18 rounded-3xl transition-transform ${
+              accuracy === 100
+                ? 'bg-gradient-to-tr from-amber-400 to-yellow-300 text-amber-950 shadow-lg shadow-amber-300/50 animate-joyful-pulse-scale ring-4 ring-amber-200'
+                : 'bg-indigo-50 text-indigo-600 shadow-2xs'
+            }`}
+          >
+            <Trophy className="w-9 h-9" />
+          </div>
         </div>
 
-        <div className={`inline-block px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider mb-2 ${performanceInfo.badgeClass}`}>
-          {performanceInfo.title}
-        </div>
+        {accuracy === 100 ? (
+          <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs font-black uppercase tracking-wider mb-2 shadow-xs animate-joyful-pop">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>100% Akurasi Sempurna!</span>
+            <Sparkles className="w-3.5 h-3.5" />
+          </div>
+        ) : (
+          <div className={`inline-block px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider mb-2 ${performanceInfo.badgeClass}`}>
+            {performanceInfo.title}
+          </div>
+        )}
 
         <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-1">
           {correctCount} / {totalAnswered} Soal Benar
@@ -129,6 +168,24 @@ export default function ResultsScreen({
         <p className="text-sm sm:text-base text-slate-600 max-w-lg mx-auto mt-2">
           {performanceInfo.desc}
         </p>
+
+        {/* Re-trigger Confetti Button for 100% celebration */}
+        {accuracy === 100 && (
+          <div className="mt-4">
+            <button
+              type="button"
+              id="btn-retrigger-confetti"
+              onClick={() => {
+                fireGrandCelebration();
+                if (settings.soundEnabled) sounds.playVictoryFanfare();
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs sm:text-sm font-bold border border-amber-300/80 shadow-2xs transition-all duration-150 cursor-pointer hover:scale-105 active:scale-95"
+            >
+              <PartyPopper className="w-4 h-4 text-amber-700" />
+              <span>Rayakan Lagi! (Ledakkan Konfeti 🎉)</span>
+            </button>
+          </div>
+        )}
 
         {/* Primary Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8">
@@ -181,7 +238,7 @@ export default function ResultsScreen({
             type="button"
             id="btn-retry-mistakes"
             onClick={() => onRetryMistakes(wrongQuestions)}
-            className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-xs transition-colors"
+            className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-sm shadow-md hover:shadow-rose-400/30 hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer"
           >
             <AlertTriangle className="w-4 h-4" />
             Latih {wrongQuestions.length} Soal Salah
@@ -192,7 +249,7 @@ export default function ResultsScreen({
           type="button"
           id="btn-restart-same"
           onClick={onRestartSame}
-          className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xs transition-colors"
+          className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-600 text-white font-bold text-sm shadow-md hover:shadow-purple-400/30 hover:scale-105 active:scale-95 transition-all duration-150 cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" />
           Ulangi Latihan Ini
@@ -202,7 +259,7 @@ export default function ResultsScreen({
           type="button"
           id="btn-new-setup"
           onClick={onNewSetup}
-          className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition-colors border border-slate-200"
+          className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 hover:border-indigo-300 text-slate-800 font-bold text-sm hover:scale-105 active:scale-95 transition-all duration-150 border border-slate-200 cursor-pointer"
         >
           <Sliders className="w-4 h-4" />
           Atur Pengaturan Baru

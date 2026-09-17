@@ -123,28 +123,65 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {OPERATION_CONFIGS.map((op) => {
               const isSelected = selectedOps.includes(op.id);
+              
+              // Joyful color accents for each operation
+              const getOpColors = () => {
+                switch (op.id) {
+                  case 'addition':
+                    return {
+                      selected: 'border-emerald-500 bg-emerald-50/70 text-emerald-900 shadow-sm ring-2 ring-emerald-500/20',
+                      badge: 'bg-emerald-500 text-white',
+                      symbol: 'text-emerald-600',
+                      hover: 'hover:border-emerald-400 hover:bg-emerald-50/40 hover:shadow-emerald-100',
+                    };
+                  case 'subtraction':
+                    return {
+                      selected: 'border-sky-500 bg-sky-50/70 text-sky-900 shadow-sm ring-2 ring-sky-500/20',
+                      badge: 'bg-sky-500 text-white',
+                      symbol: 'text-sky-600',
+                      hover: 'hover:border-sky-400 hover:bg-sky-50/40 hover:shadow-sky-100',
+                    };
+                  case 'multiplication':
+                    return {
+                      selected: 'border-purple-500 bg-purple-50/70 text-purple-900 shadow-sm ring-2 ring-purple-500/20',
+                      badge: 'bg-purple-500 text-white',
+                      symbol: 'text-purple-600',
+                      hover: 'hover:border-purple-400 hover:bg-purple-50/40 hover:shadow-purple-100',
+                    };
+                  case 'division':
+                    return {
+                      selected: 'border-amber-500 bg-amber-50/70 text-amber-900 shadow-sm ring-2 ring-amber-500/20',
+                      badge: 'bg-amber-500 text-white',
+                      symbol: 'text-amber-600',
+                      hover: 'hover:border-amber-400 hover:bg-amber-50/40 hover:shadow-amber-100',
+                    };
+                }
+              };
+
+              const colors = getOpColors();
+
               return (
                 <button
                   key={op.id}
                   type="button"
                   id={`btn-op-${op.id}`}
                   onClick={() => toggleOperation(op.id)}
-                  className={`relative p-4 rounded-xl border-2 text-left transition-all flex flex-col justify-between ${
+                  className={`relative p-4 rounded-2xl border-2 text-left transition-all duration-200 flex flex-col justify-between cursor-pointer hover:scale-105 hover:-translate-y-0.5 hover:shadow-md active:scale-95 ${
                     isSelected
-                      ? 'border-indigo-600 bg-indigo-50/50 text-slate-900 shadow-xs ring-1 ring-indigo-600/20'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50/50'
+                      ? colors.selected
+                      : `border-slate-200 bg-white text-slate-600 ${colors.hover}`
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-3">
-                    <span className="font-mono-numbers text-2xl font-bold text-indigo-600">
+                    <span className={`font-mono-numbers text-3xl font-extrabold ${colors.symbol}`}>
                       {op.symbol}
                     </span>
                     <div
-                      className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
-                        isSelected ? 'bg-indigo-600 text-white' : 'border border-slate-300'
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                        isSelected ? `${colors.badge} shadow-xs scale-105` : 'border border-slate-300'
                       }`}
                     >
-                      {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      {isSelected && <Check className="w-4 h-4 stroke-[3]" />}
                     </div>
                   </div>
                   <div>
@@ -180,10 +217,10 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
                   type="button"
                   id={`btn-preset-count-${count}`}
                   onClick={() => handlePresetCount(count)}
-                  className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                  className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 cursor-pointer hover:scale-105 hover:-translate-y-0.5 active:scale-95 ${
                     active
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-200'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:border-indigo-300 hover:text-indigo-600 border border-slate-200/60'
                   }`}
                 >
                   {count} Soal
@@ -195,10 +232,10 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
               type="button"
               id="btn-custom-count-toggle"
               onClick={() => setIsCustomCount(true)}
-              className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
+              className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 cursor-pointer hover:scale-105 hover:-translate-y-0.5 active:scale-95 ${
                 isCustomCount
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-200'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:border-indigo-300 hover:text-indigo-600 border border-slate-200/60'
               }`}
             >
               Kustom
@@ -245,9 +282,9 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
               type="button"
               id="btn-diff-1digit"
               onClick={() => setDifficulty('1-digit')}
-              className={`p-4 rounded-xl border-2 text-left transition-all ${
+              className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-md hover:border-indigo-300 active:scale-[0.98] ${
                 difficulty === '1-digit'
-                  ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-1 ring-indigo-600/20'
+                  ? 'border-indigo-600 bg-indigo-50/60 shadow-xs ring-2 ring-indigo-600/20'
                   : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
@@ -268,9 +305,9 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
               type="button"
               id="btn-diff-2digit"
               onClick={() => setDifficulty('2-digit')}
-              className={`p-4 rounded-xl border-2 text-left transition-all ${
+              className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-md hover:border-indigo-300 active:scale-[0.98] ${
                 difficulty === '2-digit'
-                  ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-1 ring-indigo-600/20'
+                  ? 'border-indigo-600 bg-indigo-50/60 shadow-xs ring-2 ring-indigo-600/20'
                   : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
@@ -291,9 +328,9 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
               type="button"
               id="btn-diff-up1000"
               onClick={() => setDifficulty('up-to-1000')}
-              className={`p-4 rounded-xl border-2 text-left transition-all ${
+              className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-md hover:border-indigo-300 active:scale-[0.98] ${
                 difficulty === 'up-to-1000'
-                  ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-1 ring-indigo-600/20'
+                  ? 'border-indigo-600 bg-indigo-50/60 shadow-xs ring-2 ring-indigo-600/20'
                   : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
@@ -314,9 +351,9 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
               type="button"
               id="btn-diff-progressive"
               onClick={() => setDifficulty('progressive')}
-              className={`p-4 rounded-xl border-2 text-left transition-all ${
+              className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-md hover:border-indigo-300 active:scale-[0.98] ${
                 difficulty === 'progressive'
-                  ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-1 ring-indigo-600/20'
+                  ? 'border-indigo-600 bg-indigo-50/60 shadow-xs ring-2 ring-indigo-600/20'
                   : 'border-slate-200 bg-white hover:border-slate-300'
               }`}
             >
@@ -471,10 +508,10 @@ export default function SetupScreen({ onStart }: SetupScreenProps) {
             id="btn-start-quiz"
             onClick={handleStart}
             disabled={selectedOps.length === 0}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base sm:text-lg shadow-md hover:shadow-indigo-500/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-600 text-white font-bold text-base sm:text-lg shadow-lg shadow-purple-500/20 hover:shadow-xl hover:shadow-purple-500/35 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none group"
           >
-            <Play className="w-5 h-5 fill-current" />
-            Mulai Latihan Sekarang
+            <Play className="w-5 h-5 fill-current transition-transform duration-200 group-hover:scale-110 group-hover:translate-x-0.5" />
+            <span>Mulai Latihan Sekarang</span>
           </button>
         </div>
 

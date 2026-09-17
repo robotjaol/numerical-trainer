@@ -4,12 +4,16 @@ import SetupScreen from './components/SetupScreen';
 import PracticeScreen from './components/PracticeScreen';
 import ResultsScreen from './components/ResultsScreen';
 import HistoryModal from './components/HistoryModal';
+import { CheerfulTransitionScreen } from './components/CheerfulTransitionScreen';
+import { JoyfulInitialLoadingScreen } from './components/JoyfulInitialLoadingScreen';
+import { JoyfulClickEffect } from './components/JoyfulClickEffect';
 import { Question, QuizSettings, TrainingHistoryItem } from './types';
 import { generateQuizQuestions } from './utils/mathGenerator';
 import { sounds } from './utils/audio';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<'setup' | 'practice' | 'results'>('setup');
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+  const [currentScreen, setCurrentScreen] = useState<'setup' | 'transition' | 'practice' | 'results'>('setup');
   const [settings, setSettings] = useState<QuizSettings>({
     operations: ['addition', 'subtraction', 'multiplication', 'division'],
     questionCount: 50,
@@ -57,7 +61,7 @@ export default function App() {
     });
   };
 
-  // Start new quiz
+  // Start new quiz with cheerful transition screen
   const handleStartQuiz = (newSettings: QuizSettings) => {
     setSettings(newSettings);
     const newQuestions = generateQuizQuestions(newSettings);
@@ -66,7 +70,7 @@ export default function App() {
     setTotalTimeMs(0);
     setMaxStreak(0);
     setIsPaused(false);
-    setCurrentScreen('practice');
+    setCurrentScreen('transition');
   };
 
   // Finish quiz
@@ -120,7 +124,7 @@ export default function App() {
     setTotalTimeMs(0);
     setMaxStreak(0);
     setIsPaused(false);
-    setCurrentScreen('practice');
+    setCurrentScreen('transition');
   };
 
   // Retry only mistakes
@@ -139,7 +143,7 @@ export default function App() {
     setTotalTimeMs(0);
     setMaxStreak(0);
     setIsPaused(false);
-    setCurrentScreen('practice');
+    setCurrentScreen('transition');
   };
 
   // Back to setup
@@ -159,6 +163,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+      <JoyfulClickEffect />
+
+      {/* Joyful Initial Loading Screen on first visit or replay */}
+      {isInitialLoading && (
+        <JoyfulInitialLoadingScreen
+          soundEnabled={settings.soundEnabled}
+          onComplete={() => setIsInitialLoading(false)}
+        />
+      )}
+
       <Header
         isPlaying={currentScreen === 'practice'}
         isPaused={isPaused}
@@ -167,11 +181,20 @@ export default function App() {
         onOpenHistory={() => setIsHistoryOpen(true)}
         onTogglePause={() => setIsPaused((prev) => !prev)}
         onExitToHome={handleNewSetup}
+        onReplayIntro={() => setIsInitialLoading(true)}
       />
 
       <main className="flex-1">
         {currentScreen === 'setup' && (
           <SetupScreen onStart={handleStartQuiz} />
+        )}
+
+        {currentScreen === 'transition' && (
+          <CheerfulTransitionScreen
+            settings={settings}
+            onComplete={() => setCurrentScreen('practice')}
+            onCancel={handleNewSetup}
+          />
         )}
 
         {currentScreen === 'practice' && questions.length > 0 && (
